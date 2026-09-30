@@ -38,7 +38,7 @@ async () => {
 
 ## Claude desktop Browser pane
 
-1. Navigate the pane to `https://hey-traders.com/`.
+1. Reuse a pane already on `https://hey-traders.com`, keeping its current workspace URL. When opening a new product or sign-in page, navigate the pane to `https://hey-traders.com/?ht_client=claude`. Do not navigate an existing page just to add the marker.
 2. Call `javascript_tool` with this text, where `<function>` is the bridge function:
 
    ```text
@@ -63,7 +63,7 @@ Do not use `--persistent` instead. Its profile location depends on the working d
 1. Run `playwright-cli list`. If the `heytraders` session is not open, open it:
 
    ```bash
-   playwright-cli -s=heytraders open https://hey-traders.com/ --headed --profile="<profile directory>" --browser=chrome
+   playwright-cli -s=heytraders open 'https://hey-traders.com/?ht_client=claude' --headed --profile="<profile directory>" --browser=chrome
    ```
 
    - `--profile` keeps the browser profile, and with it the HeyTraders sign-in, in the profile directory.
@@ -94,6 +94,6 @@ Keeping the user signed in takes nothing beyond the profile directory. Never use
 
 ## Page loading
 
-The application installs `window.__bridge` shortly after a full page load. The function waits up to 10 seconds for it. In-app navigation through `navigation` commands keeps the bridge available without a reload.
+The application installs `window.__bridge` shortly after a full page load. The function waits up to 10 seconds for it. In-app navigation through `navigation` commands keeps the bridge available without a reload. The bridge function does not navigate the page or add the client marker to command arguments.
 
-A `heytraders-bridge-unavailable` result after a full page load means the page is not the HeyTraders application. For example, shared backtest pages under `/s/backtests/` do not load it. Navigate to `https://hey-traders.com/` and retry once.
+A `heytraders-bridge-unavailable` result after a full page load means the page is not the HeyTraders application. For example, shared backtest pages under `/s/backtests/` do not load it. Navigate to `https://hey-traders.com/?ht_client=claude` and retry once.

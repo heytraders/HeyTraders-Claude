@@ -52,11 +52,13 @@ Placing real orders, running strategies with real funds, and connecting exchange
 
 ## How it works and your privacy
 
-1. Claude opens `https://hey-traders.com/` in the Claude desktop app's built-in browser. If that isn't available, it opens a Google Chrome window through `playwright-cli`.
+1. Claude reuses an existing HeyTraders page and keeps its workspace URL. A new product or sign-in page opens at `https://hey-traders.com/?ht_client=claude` in the Claude desktop app's built-in browser. If that isn't available, it opens a Google Chrome window through `playwright-cli`.
 2. In that window, your HeyTraders sign-in is kept in a browser profile inside this plugin's data folder. Uninstalling the plugin removes that profile.
 3. Claude sends each request to HeyTraders' own command interface in that page, using one small built-in script.
 
 Claude signs in only through you and never reads your passwords, cookies, or browser storage. The plugin bundles no programs or servers, and sends nothing to any service other than HeyTraders.
+
+The entry URL tells HeyTraders that the new page came from this plugin, subject to your analytics consent. This client-declared marker does not grant consent or authenticate you.
 
 See the [privacy policy](https://hey-traders.com/privacy) and [terms of service](https://hey-traders.com/terms).
 

@@ -74,6 +74,8 @@ Start a new Claude Code session after installing, then ask Claude to do somethin
 
 Claude works only in the HeyTraders page in its own browser, and signs in only through you. It never reads your passwords, cookies, or browser storage. The plugin sends nothing to any other service. See the [privacy policy](https://hey-traders.com/privacy) and [terms of service](https://hey-traders.com/terms).
 
+New product or sign-in pages open at `https://hey-traders.com/?ht_client=claude` so HeyTraders can recognize the plugin entry according to your analytics consent. An existing HeyTraders page keeps its workspace and URL. This client-declared marker does not grant consent or authenticate you.
+
 ## Support
 
 - [Getting started with HeyTraders](https://hey-traders.com/docs/getting-started)

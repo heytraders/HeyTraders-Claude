@@ -28,6 +28,7 @@ const MANIFEST_FIELDS = [
 ];
 
 const HEYTRADERS_ORIGIN = 'https://hey-traders.com';
+const HEYTRADERS_ENTRY_URL = `${HEYTRADERS_ORIGIN}/?ht_client=claude`;
 const SKILL_DESCRIPTION_LIMIT = 1536;
 const README_MINIMUM_WORDS = 40;
 
@@ -84,8 +85,9 @@ const { exampleRequest, withRequest } = parseBridgeFunction(extractBridgeFunctio
 // Runs the function the way the Browser pane does, `await (<function>)()`, against a fake page.
 const runBridgeFunction = async (request, page) => {
   let virtualMs = 0;
+  const location = new URL(page.url ?? `${page.origin}/`);
   const context = vm.createContext({
-    location: { origin: page.origin },
+    location,
     window: {},
     Number,
     Promise,
@@ -97,7 +99,7 @@ const runBridgeFunction = async (request, page) => {
   });
   if (page.bridge) context.window.__bridge = page.bridge;
   const result = await vm.runInContext(`(async () => (await (${withRequest(request)})()))()`, context);
-  return { result: JSON.parse(JSON.stringify(result)), virtualMs };
+  return { result: JSON.parse(JSON.stringify(result)), virtualMs, locationHref: location.href };
 };
 
 // Expands the documented playwright-cli heredoc in a real shell and returns the argument eval receives.
@@ -174,8 +176,34 @@ await check('playwright-cli keeps sign-in in the plugin data profile', () => {
   const skill = read(`${SKILL_DIR}/SKILL.md`);
   const doc = read(`${SKILL_DIR}/references/bridge-call.md`);
   assert.ok(skill.includes('`${CLAUDE_PLUGIN_DATA}/chrome-profile`'), 'SKILL.md must name the plugin data profile directory');
-  assert.ok(doc.includes('open https://hey-traders.com/ --headed --profile="<profile directory>" --browser=chrome'), 'the session must open with --profile');
+  assert.ok(doc.includes(`open '${HEYTRADERS_ENTRY_URL}' --headed --profile="<profile directory>" --browser=chrome`), 'the session must open with the quoted client entry URL and --profile');
   assert.ok(!/open [^\n]*--persistent/.test(doc), '--persistent ties the profile to the working directory');
+});
+
+await check('new-entry instructions consistently tag Claude without rewriting marketing UTMs', () => {
+  const entry = new URL(HEYTRADERS_ENTRY_URL);
+  assert.deepEqual([...entry.searchParams.entries()], [['ht_client', 'claude']]);
+  for (const file of [
+    'README.md', `${PLUGIN_DIR}/README.md`, `${SKILL_DIR}/SKILL.md`,
+    `${SKILL_DIR}/references/bridge-call.md`, `${SKILL_DIR}/references/runtime-contract.md`,
+  ]) {
+    const guidance = read(file);
+    assert.ok(guidance.includes(HEYTRADERS_ENTRY_URL), `${file} must declare the Claude entry URL`);
+    for (const marker of guidance.matchAll(/https:\/\/hey-traders\.com\/\?ht_client=([a-z]+)/g)) {
+      assert.equal(marker[1], 'claude', 'Bundled guidance must not assign another plugin client');
+    }
+  }
+});
+
+await check('tagged entry and reused workspace dispatch unchanged without navigation', async () => {
+  const request = { command: 'auth status', args: {} };
+  for (const url of [HEYTRADERS_ENTRY_URL, `${HEYTRADERS_ORIGIN}/dashboard/workspace/chart?workspace=fixture&symbol=BTC#pane-2`]) {
+    const { bridge, calls } = createBridge(7);
+    const { result, locationHref } = await runBridgeFunction(request, { url, bridge });
+    assert.equal(result.ok, true);
+    assert.deepEqual(calls, [request], 'Client metadata must not alter command arguments');
+    assert.equal(locationHref, url, 'Bridge calls must preserve the current workspace URL');
+  }
 });
 
 await check('heredoc hands shell-sensitive requests to eval unchanged', () => {

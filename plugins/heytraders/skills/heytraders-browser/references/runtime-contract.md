@@ -11,6 +11,10 @@
 
 This plugin keeps no copy of the command catalog. Command names and schemas come from live discovery.
 
+## Plugin entry
+
+New product or sign-in tabs use `https://hey-traders.com/?ht_client=claude`. An existing canonical page keeps its current URL, including workspace parameters and fragment. The bridge function only dispatches commands; it does not reload the page, add client fields to command arguments, or rewrite marketing UTMs. The entry marker is an untrusted client observation processed by the application's consent-aware acquisition owner, not identity or authorization evidence. An untagged reused page does not establish a new Claude acquisition observation.
+
 ## Discovery
 
 - `help list` with no domains returns the domain index.
