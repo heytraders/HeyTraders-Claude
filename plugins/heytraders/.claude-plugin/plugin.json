@@ -1,0 +1,20 @@
+{
+  "name": "heytraders",
+  "displayName": "Hey-Traders! Quant Trading",
+  "version": "1.0.0",
+  "description": "Agent-native access to HeyTraders quantitative research, chart analysis, backtesting, and paper simulation through the Claude desktop Browser pane or playwright-cli.",
+  "author": {
+    "name": "HeyTraders, Inc.",
+    "url": "https://github.com/heytraders"
+  },
+  "homepage": "https://hey-traders.com/docs/getting-started",
+  "repository": "https://github.com/heytraders/HeyTraders-Claude",
+  "license": "Apache-2.0",
+  "keywords": [
+    "heytraders",
+    "trading",
+    "backtesting",
+    "chart",
+    "browser"
+  ]
+}
